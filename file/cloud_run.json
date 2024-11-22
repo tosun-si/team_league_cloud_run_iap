@@ -1,0 +1,133 @@
+{
+  "apiVersion": "serving.knative.dev/v1",
+  "kind": "Service",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "489.0.0",
+      "run.googleapis.com/ingress": "all",
+      "run.googleapis.com/ingress-status": "all",
+      "run.googleapis.com/operation-id": "c62dc6ee-0606-44a8-8318-c81651c44fc1",
+      "run.googleapis.com/urls": "[\"https://teams-league-service-iap-975119474255.europe-west1.run.app\",\"https://teams-league-service-iap-4wtmsxga6q-ew.a.run.app\"]",
+      "serving.knative.dev/creator": "mtosun@groupbees.fr",
+      "serving.knative.dev/lastModifier": "mtosun@groupbees.fr"
+    },
+    "creationTimestamp": "2024-11-21T11:31:35.238596Z",
+    "generation": 2,
+    "labels": {
+      "cloud.googleapis.com/location": "europe-west1"
+    },
+    "name": "teams-league-service-iap",
+    "namespace": "975119474255",
+    "resourceVersion": "AAYnaqDeoMA",
+    "selfLink": "/apis/serving.knative.dev/v1/namespaces/975119474255/services/teams-league-service-iap",
+    "uid": "a2375e05-7d0d-4e40-94d4-5d0b9ed72a57"
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "annotations": {
+          "autoscaling.knative.dev/maxScale": "100",
+          "run.googleapis.com/client-name": "gcloud",
+          "run.googleapis.com/client-version": "489.0.0",
+          "run.googleapis.com/startup-cpu-boost": "true"
+        },
+        "labels": {
+          "client.knative.dev/nonce": "xncolwhuqo",
+          "run.googleapis.com/startupProbeType": "Default"
+        }
+      },
+      "spec": {
+        "containerConcurrency": 80,
+        "containers": [
+          {
+            "env": [
+              {
+                "name": "PROJECT_ID",
+                "value": "gb-poc-373711"
+              },
+              {
+                "name": "OUTPUT_DATASET",
+                "value": "mazlum_test"
+              },
+              {
+                "name": "OUTPUT_TABLE",
+                "value": "team_stat"
+              },
+              {
+                "name": "INPUT_BUCKET",
+                "value": "mazlum_dev"
+              },
+              {
+                "name": "INPUT_OBJECT",
+                "value": "airflow/team_league/elt/input_teams_stats_raw.json"
+              }
+            ],
+            "image": "europe-west1-docker.pkg.dev/gb-poc-373711/internal-images/teams-league-service:latest",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "name": "http1"
+              }
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "1000m",
+                "memory": "512Mi"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 1,
+              "periodSeconds": 240,
+              "tcpSocket": {
+                "port": 8080
+              },
+              "timeoutSeconds": 240
+            }
+          }
+        ],
+        "serviceAccountName": "975119474255-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": 300
+      }
+    },
+    "traffic": [
+      {
+        "latestRevision": true,
+        "percent": 100
+      }
+    ]
+  },
+  "status": {
+    "address": {
+      "url": "https://teams-league-service-iap-4wtmsxga6q-ew.a.run.app"
+    },
+    "conditions": [
+      {
+        "lastTransitionTime": "2024-11-21T11:32:59.225280Z",
+        "status": "True",
+        "type": "Ready"
+      },
+      {
+        "lastTransitionTime": "2024-11-21T11:32:57.934678Z",
+        "status": "True",
+        "type": "ConfigurationsReady"
+      },
+      {
+        "lastTransitionTime": "2024-11-21T11:32:59.192353Z",
+        "status": "True",
+        "type": "RoutesReady"
+      }
+    ],
+    "latestCreatedRevisionName": "teams-league-service-iap-00002-mvt",
+    "latestReadyRevisionName": "teams-league-service-iap-00002-mvt",
+    "observedGeneration": 2,
+    "traffic": [
+      {
+        "latestRevision": true,
+        "percent": 100,
+        "revisionName": "teams-league-service-iap-00002-mvt"
+      }
+    ],
+    "url": "https://teams-league-service-iap-4wtmsxga6q-ew.a.run.app"
+  }
+}

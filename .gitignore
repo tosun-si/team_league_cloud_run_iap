@@ -1,0 +1,14 @@
+.idea
+target
+*.iml
+**/avro/generated
+.DS_Store
+venv
+.envrc
+*.egg-info
+*.pytest_cache
+__pycache__
+
+.terraform
+.terraform.lock.hcl
+*tfplan.out

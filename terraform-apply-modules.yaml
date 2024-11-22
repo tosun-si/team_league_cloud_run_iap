@@ -1,0 +1,30 @@
+steps:
+  - name: hashicorp/terraform:1.9.8
+    script: |
+      terraform init \
+        -backend-config="bucket=${TF_STATE_BUCKET}" \
+        -backend-config="prefix=${TF_STATE_PREFIX}/team_league_cloud_run_iap"
+      
+      terraform plan --out tfplan.out \
+        -var project_id=$PROJECT_ID \
+        -var region=$LOCATION \
+        -var repo_name=$REPO_NAME \
+        -var image_name=$IMAGE_NAME \
+        -var image_tag=$IMAGE_TAG \
+        -var service_name=$SERVICE_NAME \
+        -var domain="cloudrun-iap.groupbees.org" \
+        -var lb_name="cloud-run-team-league-lb" \
+        -var iap_client_id="$IAP_OAUTH_CLIENT_ID" \
+        -var iap_client_secret="$IAP_OAUTH_CLIENT_SECRET"
+      
+      terraform apply -auto-approve tfplan.out
+    dir: 'infra/team_league_cloud_run_iap'
+    env:
+      - 'PROJECT_ID=$PROJECT_ID'
+      - 'LOCATION=$LOCATION'
+      - 'TF_STATE_BUCKET=$_TF_STATE_BUCKET'
+      - 'TF_STATE_PREFIX=$_TF_STATE_PREFIX'
+      - 'REPO_NAME=$_REPO_NAME'
+      - 'IMAGE_NAME=$_IMAGE_NAME'
+      - 'IMAGE_TAG=$_IMAGE_TAG'
+      - 'SERVICE_NAME=$_SERVICE_NAME'
