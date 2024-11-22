@@ -1,11 +1,42 @@
-resource "google_vpc_access_connector" "cloud_run_vpc_connector_iap" {
-  name          = "cloud-run-vpc-conn-iap"
-  region        = var.region
-  project       = var.project_id
-  ip_cidr_range = "10.9.0.0/28"
-  network       = "default"
-  min_instances = 2
-  max_instances = 10
+# resource "google_vpc_access_connector" "cloud_run_vpc_connector_iap" {
+#   name          = "cloud-run-vpc-conn-iap"
+#   region        = var.region
+#   project       = var.project_id
+#   ip_cidr_range = "10.9.0.0/28"
+#   network       = "default"
+#   min_instances = 2
+#   max_instances = 10
+# }
+
+resource "random_id" "random_suffix" {
+  byte_length = 4
+}
+
+resource "google_compute_url_map" "url_map" {
+  project = var.project_id
+  name    = "cloud-run-url-map-${random_id.random_suffix.hex}"
+
+  default_url_redirect {
+    https_redirect         = false
+    host_redirect          = "www.google.com"
+    redirect_response_code = "PERMANENT_REDIRECT"
+    strip_query            = true
+  }
+
+  host_rule {
+    hosts = [var.domain]
+    path_matcher = "cloud-iap"
+  }
+
+  path_matcher {
+    name = "cloud-iap"
+
+    default_service = module.lb-http.backend_services["default"].self_link
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_cloud_run_service" "team_league_cloud_run_service" {
@@ -19,11 +50,12 @@ resource "google_cloud_run_service" "team_league_cloud_run_service" {
     }
   }
   template {
-    metadata {
-      annotations = {
-        "run.googleapis.com/vpc-access-connector" : google_vpc_access_connector.cloud_run_vpc_connector_iap.name
-      }
-    }
+    # metadata {
+    #   annotations = {
+    #     "run.googleapis.com/vpc-access-connector" : google_vpc_access_connector.cloud_run_vpc_connector_iap.name
+    #   }
+    # }
+
     spec {
       containers {
         image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repo_name}/${var.image_name}:${var.image_tag}"
@@ -50,9 +82,12 @@ module "lb-http" {
   project = var.project_id
   name    = var.lb_name
 
-  ssl            = true
+  ssl                       = true
   managed_ssl_certificate_domains = [var.domain]
-  https_redirect = true
+  https_redirect            = true
+  random_certificate_suffix = true
+
+  url_map = google_compute_url_map.url_map.self_link
 
   backends = {
     default = {
